@@ -21,13 +21,13 @@ async function httpAddNewLaunch(req, res) {
 
 	data.launchDate = new Date(launchDate);
 
-	if (data.launchDate.toString === 'Invalid Date') {
+	if (data.launchDate.toString() === 'Invalid Date') {
 		return res.status(400).json({
 			error: 'Invalid launch date',
 		});
 	}
 
-	return res.status(200).json(addNewLaunch(data));
+	return res.status(201).json(addNewLaunch(data));
 }
 
 async function httpAbortLaunchById(req, res) {
