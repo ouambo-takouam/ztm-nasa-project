@@ -10,7 +10,6 @@ const PORT = 8000;
 
 const server = http.createServer(app);
 
-// Establish connection to mongodb before running server
 mongoConnect();
 loadPlanetsData();
 
