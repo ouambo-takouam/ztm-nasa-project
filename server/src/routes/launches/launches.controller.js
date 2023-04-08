@@ -27,7 +27,13 @@ async function httpAddNewLaunch(req, res) {
 		});
 	}
 
-	return res.status(201).json(addNewLaunch(data));
+	const response = await addNewLaunch(data);
+
+	if (!response) {
+		return { ok: false };
+	}
+
+	return res.status(201).json({ ok: true });
 }
 
 async function httpAbortLaunchById(req, res) {

@@ -2,8 +2,6 @@ const Launch = require('./launches.mongo');
 
 const launches = new Map();
 
-const latestFlightNumber = 100;
-
 const launch = {
 	flightNumber: 100,
 	mission: 'First mission',
@@ -18,6 +16,12 @@ function existLaunchById(launchId) {
 	return launches.has(launchId);
 }
 
+async function getLatestFlightNumber() {
+	const latestLaunch = await Launch.findOne().sort('-flightNumber');
+
+	return latestLaunch.flightNumber;
+}
+
 async function getAllLaunches() {
 	return await Launch.find({}, '-_id -__v');
 }
@@ -25,21 +29,18 @@ async function getAllLaunches() {
 async function saveLaunch(data) {
 	const { flightNumber } = data;
 
-	await Launch.updateOne({ flightNumber }, data, { upsert: true });
+	return await Launch.updateOne({ flightNumber }, data, { upsert: true });
 }
 
-function addNewLaunch(data) {
-	const launch = {
+async function addNewLaunch(data) {
+	const latestFlightNumber = await getLatestFlightNumber();
+
+	const response = await saveLaunch({
 		flightNumber: latestFlightNumber + 1,
-		customers: ['NASA', 'ZTM'],
-		upcoming: true,
-		success: true,
 		...data,
-	};
+	});
 
-	launches.set(launch.flightNumber, launch);
-
-	return launch;
+	return response.upsertedCount === 1;
 }
 
 function abortLaunchById(launchId) {
