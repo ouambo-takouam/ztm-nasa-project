@@ -1,3 +1,5 @@
+const Launch = require('./launches.mongo');
+
 const launches = new Map();
 
 const latestFlightNumber = 100;
@@ -8,19 +10,22 @@ const launch = {
 	rocket: 'Explorer IS1',
 	launchDate: new Date('December 1, 2023'),
 	target: 'Kepler-1652 b',
-	customers: ['NASA', 'ZTM'],
-	upcoming: true,
-	success: true,
 };
 
-launches.set(launch.flightNumber, launch);
+saveLaunch(launch);
 
 function existLaunchById(launchId) {
 	return launches.has(launchId);
 }
 
-function getAllLaunches() {
-	return Array.from(launches.values());
+async function getAllLaunches() {
+	return await Launch.find({}, '-_id -__v');
+}
+
+async function saveLaunch(data) {
+	const { flightNumber } = data;
+
+	await Launch.updateOne({ flightNumber }, data, { upsert: true });
 }
 
 function addNewLaunch(data) {
