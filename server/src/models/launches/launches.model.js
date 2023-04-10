@@ -1,7 +1,7 @@
 const axios = require('axios');
 const Launch = require('./launches.mongo');
 
-const SPACEX_API_URL = 'https://api.spacexdata.com/v4/';
+const SPACEX_API_URL = 'https://api.spacexdata.com/v4/launches/query';
 
 const launch = {
 	flightNumber: 100, //flight_number
@@ -19,7 +19,7 @@ const launch = {
 saveLaunch(launch);
 
 async function loadLaunchesData() {
-	await axios.post(`${SPACEX_API_URL}/launches/query`, {
+	const response = await axios.post(SPACEX_API_URL, {
 		query: {},
 		options: {
 			populate: [
@@ -38,6 +38,34 @@ async function loadLaunchesData() {
 			],
 		},
 	});
+
+	const launchDocs = response.data.docs;
+
+	for (const launchDoc of launchDocs) {
+		const {
+			flight_number,
+			name,
+			rocket,
+			date_local,
+			payloads,
+			upcoming,
+			success,
+		} = launchDoc;
+
+		const customers = payloads.flatMap((payload) => payload['customers']);
+
+		const launch = {
+			flightNumber: flight_number,
+			mission: name,
+			rocket,
+			launchDate: date_local,
+			customers,
+			upcoming,
+			success,
+		};
+
+		console.log(launch);
+	}
 }
 
 async function existLaunchById(launchId) {
