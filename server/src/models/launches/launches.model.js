@@ -20,6 +20,7 @@ saveLaunch(launch);
 
 async function loadLaunchesData() {
 	const response = await axios.post(SPACEX_API_URL, {
+		pagination: false,
 		query: {},
 		options: {
 			populate: [
