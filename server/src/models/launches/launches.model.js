@@ -18,11 +18,15 @@ const launch = {
 
 saveLaunch(launch);
 
-async function loadLaunchesData() {
+async function findLaunch(filter) {
+	return await Launch.findOne(filter);
+}
+
+async function populateLaunches() {
 	const response = await axios.post(SPACEX_API_URL, {
-		pagination: false,
 		query: {},
 		options: {
+			pagination: false,
 			populate: [
 				{
 					path: 'rocket',
@@ -58,19 +62,33 @@ async function loadLaunchesData() {
 		const launch = {
 			flightNumber: flight_number,
 			mission: name,
-			rocket,
+			rocket: rocket.name,
 			launchDate: date_local,
 			customers,
 			upcoming,
 			success,
 		};
 
-		console.log(launch);
+		await saveLaunch(launch);
+	}
+}
+
+async function loadLaunchesData() {
+	const firstLaunch = await findLaunch({
+		flightNumber: 1,
+		mission: 'FalconSat',
+		rocket: 'Falcon 1',
+	});
+
+	if (firstLaunch) {
+		console.log('launches already loaded !');
+	} else {
+		await populateLaunches();
 	}
 }
 
 async function existLaunchById(launchId) {
-	return await Launch.findOne({ flightNumber: launchId });
+	return await findLaunch({ flightNumber: launchId });
 }
 
 async function getLatestFlightNumber() {
